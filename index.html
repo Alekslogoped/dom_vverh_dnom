@@ -47,18 +47,33 @@ progress{width:100%;height:10px;accent-color:#6e4a9d}
 .windows{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:clamp(6px,1.5vw,14px)}
 .window{position:relative;display:grid;place-items:center;min-width:0;height:clamp(78px,15vw,126px);padding:0;border:5px solid #8f595c;border-bottom-width:8px;border-radius:18px 18px 8px 8px;overflow:hidden;background:linear-gradient(90deg,#bf8184 0 13%,transparent 13% 87%,#bf8184 87%),linear-gradient(#ffeab8 0 77%,#db9b7c 77%);box-shadow:inset 0 0 0 2px #fff3d5}
 .window:hover{border-color:#5f3b70}
-.window .resident{font-size:clamp(23px,5.4vw,58px)}
+.window .scene{position:absolute;inset:0;height:auto;border-radius:0;visibility:hidden}
+.window.revealed .scene{visibility:visible}
+.window .scene .actor{position:absolute;inset:auto 4% 13%;height:68%;margin:0;justify-content:center;align-items:end;gap:3%;container-type:inline-size}
+.window .scene .resident{font-size:clamp(23px,47cqw,64px)}
+.window .scene .prop{font-size:clamp(13px,30cqw,44px)}
+.window .picture{border-width:2px;border-radius:3px;font-size:clamp(8px,1.5vw,15px);line-height:1}
+.shutters{position:absolute;inset:0;display:flex;pointer-events:none}
+.shutters::before,.shutters::after{content:"";width:50%;background:repeating-linear-gradient(0deg,#b97379 0 7px,#d58c8a 7px 10px);border:2px solid #874c64;box-shadow:inset 0 0 0 2px #e3a19a;transition:transform .26s ease}
+.shutters::before{border-radius:10px 0 0 2px}
+.shutters::after{border-radius:0 10px 2px 0}
+.window.revealed .shutters::before{transform:translateX(-105%)}
+.window.revealed .shutters::after{transform:translateX(105%)}
+.zoom{display:none;position:absolute;bottom:3px;left:4px;width:19px;height:19px;border-radius:6px;background:#fff5df;color:#442f53;font-size:14px;line-height:19px}
+.window.revealed .zoom{display:block}
 .number{position:absolute;bottom:3px;right:4px;font-size:11px;border-radius:6px;background:#fff5df;color:#442f53;padding:1px 5px}
-.badge{position:absolute;top:3px;left:4px;font-size:12px;color:#fff;background:#40684c;border-radius:10px;padding:0 4px}
-.night .window:not(.lit){background:linear-gradient(90deg,transparent 47%,#65536f 47% 53%,transparent 53%),linear-gradient(0deg,transparent 45%,#65536f 45% 51%,transparent 51%),#2d2c49;box-shadow:none;border-color:#674961}
-.night .window:not(.lit) .resident{visibility:hidden}
+.night .window:not(.revealed){background:linear-gradient(90deg,transparent 47%,#65536f 47% 53%,transparent 53%),linear-gradient(0deg,transparent 45%,#65536f 45% 51%,transparent 51%),#2d2c49;box-shadow:none;border-color:#674961}
+.night .window:not(.revealed) .shutters::before,.night .window:not(.revealed) .shutters::after{background:repeating-linear-gradient(0deg,#38324e 0 7px,#48405e 7px 10px);border-color:#3b2c48;box-shadow:inset 0 0 0 2px #65516e}
 .entry{margin:12px auto -1px;width:42px;height:32px;border-radius:12px 12px 0 0;background:#834d67;border:3px solid #6b3a55;position:relative}
 .entry::after{content:"";position:absolute;right:5px;top:15px;width:4px;height:4px;background:#ffd889;border-radius:50%}
-dialog{width:min(520px,calc(100% - 20px));max-height:calc(100dvh - 24px);border:0;border-radius:23px;padding:17px;color:#29233d;background:#fffaf2;box-shadow:0 16px 55px #15112b55}
+dialog{width:min(900px,calc(100% - 20px));max-height:calc(100dvh - 24px);border:0;border-radius:23px;padding:17px;color:#29233d;background:#fffaf2;box-shadow:0 16px 55px #15112b55}
 dialog::backdrop{background:#201732a8}
 .dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .close{font-size:24px;line-height:1;padding:6px 10px;border-radius:10px;background:#efe6f4;color:#4c3669}
 .scene{position:relative;isolation:isolate;height:clamp(145px,32vh,260px);overflow:hidden;border-radius:16px;background:linear-gradient(var(--room) 0 73%,#dca981 73%);display:grid;place-items:center}
+dialog .scene{height:clamp(145px,62dvh,540px)}
+dialog .actor .resident{font-size:clamp(65px,min(23vw,32dvh),220px)}
+dialog .prop{font-size:clamp(40px,min(14vw,21dvh),155px)}
 .scene::before{content:"";position:absolute;z-index:-1;bottom:6%;left:18%;width:64%;height:21%;background:#fff0c4;border-radius:50%}
 .picture{position:absolute;top:10%;right:12%;width:18%;height:31%;background:#ffefcf;border:5px solid #ae776e;border-radius:8px;display:grid;place-items:center;font-size:clamp(16px,4vw,29px)}
 .actor{display:flex;align-items:end;gap:8px;margin-top:12%;line-height:1}
@@ -101,7 +116,7 @@ dialog::backdrop{background:#201732a8}
 <dialog id="room" aria-labelledby="room-title">
   <form method="dialog">
     <div class="dialog-head"><h2 id="room-title"></h2><button type="submit" class="close" aria-label="Закрыть картинку">×</button></div>
-    <div class="scene" id="scene" role="img"><span class="picture" id="picture" aria-hidden="true"></span><div class="actor" aria-hidden="true"><span class="resident" id="hero"></span><span class="prop" id="prop"></span></div></div>
+    <span class="scene" id="scene" role="img"><span class="picture" id="picture" aria-hidden="true"></span><span class="actor" aria-hidden="true"><span class="resident" id="hero"></span><span class="prop" id="prop"></span></span></span>
     <p class="prompt" id="prompt"></p>
     <p class="sentence"><strong id="sentence"></strong></p>
     <button class="primary" id="done" type="submit">К домику</button>
@@ -133,27 +148,44 @@ const byId = id => document.getElementById(id);
 const game = byId('game'), windows = byId('windows'), room = byId('room');
 const levels = [...document.querySelectorAll('.level')];
 const advance = byId('advance');
-let level, night, apartments, visited, checked, openIndex;
+let level, night, apartments, visited, checked;
 
 function start(index) {
   level = index;
   night = false;
   visited = new Set();
   checked = new Set();
-  openIndex = null;
   const offset = [0,4,10][index];
   const [size,columns] = layouts[index];
   apartments = residents.slice(offset, offset + size);
   windows.style.setProperty('--cols', columns);
-  windows.replaceChildren(...apartments.map(([emoji], i) => {
+  windows.replaceChildren(...apartments.map(([hero, prop, picture, , color], i) => {
     const button = document.createElement('button');
     button.className = 'window';
     button.type = 'button';
     button.style.setProperty('--delay', (i * -.31) + 's');
-    button.innerHTML = '<span class="resident" aria-hidden="true">' + emoji +
-      '</span><span class="number" aria-hidden="true">' + (i + 1) +
-      '</span><span class="badge" aria-hidden="true" hidden>✓</span>';
-    button.addEventListener('click', () => openRoom(i));
+    const scene = byId('scene').cloneNode(true);
+    scene.removeAttribute('id');
+    scene.removeAttribute('role');
+    scene.setAttribute('aria-hidden', 'true');
+    scene.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
+    scene.querySelector('.resident').textContent = hero;
+    scene.querySelector('.prop').textContent = prop;
+    scene.querySelector('.picture').textContent = picture;
+    scene.style.setProperty('--room', color);
+    button.append(scene);
+    button.insertAdjacentHTML('beforeend', '<span class="shutters" aria-hidden="true"></span>' +
+      '<span class="number" aria-hidden="true">' + (i + 1) + '</span>' +
+      '<span class="zoom" aria-hidden="true">⛶</span>');
+    button.addEventListener('click', () => {
+      const current = night ? checked : visited;
+      if (current.has(i)) {
+        openRoom(i);
+      } else {
+        current.add(i);
+        update();
+      }
+    });
     return button;
   }));
   levels.forEach((button, i) => button.setAttribute('aria-pressed', i === index));
@@ -166,9 +198,9 @@ function update() {
   game.classList.toggle('night', night);
   byId('phase').textContent = night ? (complete ? 'Все окна проверены!' : 'Ночь') : 'День';
   byId('instruction').textContent = night
-    ? (complete ? 'Ты вспомнил, кто живёт в домике и чем занят каждый герой.' :
-      'Выбери окно. Скажи целым предложением, кто там живёт и что делает. Затем нажми на окно и проверь себя.')
-    : 'Открой каждое окно. Запомни, кто там живёт и что делает.';
+    ? (complete ? 'Можно ещё раз рассмотреть любую картинку или сыграть дальше.' :
+      'Выбери окно. Скажи целым предложением, кто там живёт и что делает. Затем открой окно и проверь себя. Нажми на картинку ещё раз, чтобы увеличить её.')
+    : 'Открывай окна и запоминай, кто где живёт и что делает. Нажми на картинку ещё раз, чтобы увеличить её.';
   byId('progress').max = apartments.length;
   byId('progress').value = current.size;
   byId('count').textContent = (night ? 'Проверено: ' : 'Открыто: ') + current.size + ' из ' + apartments.length;
@@ -176,15 +208,14 @@ function update() {
   advance.hidden = night && !complete;
   advance.disabled = !complete;
   [...windows.children].forEach((button, i) => {
+    const revealed = current.has(i);
     button.setAttribute('aria-label', 'Квартира ' + (i + 1) +
-      (current.has(i) ? (night ? ', проверено' : ', уже открывали') : ''));
-    button.classList.toggle('lit', night && checked.has(i));
-    button.querySelector('.badge').hidden = !current.has(i);
+      (revealed ? '. ' + apartments[i][3] + ' Увеличить картинку' : '. Открыть окно'));
+    button.classList.toggle('revealed', revealed);
   });
 }
 
 function openRoom(index) {
-  openIndex = index;
   const [hero, prop, picture, sentence, color] = apartments[index];
   byId('room-title').textContent = 'Квартира ' + (index + 1);
   byId('hero').textContent = hero;
@@ -197,12 +228,6 @@ function openRoom(index) {
   room.showModal();
 }
 
-room.addEventListener('close', () => {
-  if (openIndex === null) return;
-  (night ? checked : visited).add(openIndex);
-  openIndex = null;
-  update();
-});
 levels.forEach((button, i) => button.addEventListener('click', () => start(i)));
 byId('reset').addEventListener('click', () => start(level));
 advance.addEventListener('click', () => {
