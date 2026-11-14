@@ -1,1 +1,233 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f8ecdb">
+<title>Кто живёт в домике?</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;color:#29233d;background:#f8ecdb;font-family:"Trebuchet MS",system-ui,sans-serif}
+button{font:inherit;font-weight:700;cursor:pointer;border:0}
+button:focus-visible{outline:3px solid #ff9f34;outline-offset:4px}
+.page{max-width:1160px;margin:auto;padding:18px clamp(10px,3vw,28px)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+h1,h2,p{margin:0}
+h1{font-size:clamp(24px,5vw,43px);line-height:1.05;letter-spacing:-.04em}
+.full{background:#fff8ef;color:#514267;border-radius:12px;padding:9px 12px;flex-shrink:0}
+.game{display:grid;grid-template-columns:minmax(230px,285px) minmax(0,1fr);border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
+.panel{padding:clamp(15px,3vw,28px);display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.levels{display:flex;gap:7px;width:100%}
+.level{flex:1;background:#f0e7f5;color:#493567;border-radius:12px;padding:7px 3px;font-size:16px}
+.level small{display:block;font-size:11px;font-weight:600}
+.level[aria-pressed=true]{background:#573d82;color:white}
+.phase{font-size:23px}
+.instruction{line-height:1.44;color:#544961;min-height:4.4em}
+progress{width:100%;height:10px;accent-color:#6e4a9d}
+.count{font-size:14px;color:#554766}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.primary,.secondary{padding:10px 13px;border-radius:12px;background:#573d82;color:white}
+.primary:disabled{background:#e3d9e9;color:#554766;cursor:default}
+.secondary{background:#f0e7f5;color:#493567}
+.yard{position:relative;isolation:isolate;display:grid;place-items:end center;overflow:hidden;padding:45px clamp(10px,4vw,44px) 24px;min-height:480px;background:linear-gradient(#a9ddeb,#def2e6 80%,#aad3a0 80%,#89bb87);transition:background .4s}
+.night .yard{background:linear-gradient(#23234c,#504b80 80%,#384d57 80%,#293a45)}
+.sky{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.sun,.moon{position:absolute;top:18px;right:7%;border-radius:50%;width:49px;height:49px;background:#ffe093;box-shadow:0 0 26px #ffe093}
+.moon{display:none;background:#fff0b7;box-shadow:0 0 22px #fff0b777}
+.cloud{position:absolute;top:17%;left:6%;color:#ffffffad;font-size:clamp(30px,7vw,74px);line-height:1}
+.cloud.second{left:auto;right:5%;top:34%;font-size:36px}
+.stars{display:none;position:absolute;inset:15px;color:#fff2b9;font-size:20px;letter-spacing:clamp(12px,5vw,54px);text-align:center}
+.night .sun,.night .cloud{display:none}
+.night .moon,.night .stars{display:block}
+.house{width:min(100%,600px);filter:drop-shadow(0 10px 0 #433b432a)}
+.roof{height:50px;margin:0 -8px;background:linear-gradient(160deg,#aa5476,#734569);clip-path:polygon(9% 0,90% 0,100% 100%,0 100%);position:relative}
+.roof::after{content:"";position:absolute;inset:10px 0 0;background:repeating-linear-gradient(0deg,transparent 0 9px,#48254428 9px 11px)}
+.wall{padding:clamp(8px,2vw,19px);border:3px solid #9d6057;border-top:6px solid #734569;border-radius:0 0 12px 12px;background:repeating-linear-gradient(0deg,#f0b998 0 23px,#f8caae 23px 25px)}
+.night .wall{background:repeating-linear-gradient(0deg,#9b7080 0 23px,#aa8290 23px 25px);border-color:#66445e}
+.windows{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:clamp(6px,1.5vw,14px)}
+.window{position:relative;display:grid;place-items:center;min-width:0;height:clamp(78px,15vw,126px);padding:0;border:5px solid #8f595c;border-bottom-width:8px;border-radius:18px 18px 8px 8px;overflow:hidden;background:linear-gradient(90deg,#bf8184 0 13%,transparent 13% 87%,#bf8184 87%),linear-gradient(#ffeab8 0 77%,#db9b7c 77%);box-shadow:inset 0 0 0 2px #fff3d5}
+.window:hover{border-color:#5f3b70}
+.window .resident{font-size:clamp(23px,5.4vw,58px)}
+.number{position:absolute;bottom:3px;right:4px;font-size:11px;border-radius:6px;background:#fff5df;color:#442f53;padding:1px 5px}
+.badge{position:absolute;top:3px;left:4px;font-size:12px;color:#fff;background:#40684c;border-radius:10px;padding:0 4px}
+.night .window:not(.lit){background:linear-gradient(90deg,transparent 47%,#65536f 47% 53%,transparent 53%),linear-gradient(0deg,transparent 45%,#65536f 45% 51%,transparent 51%),#2d2c49;box-shadow:none;border-color:#674961}
+.night .window:not(.lit) .resident{visibility:hidden}
+.entry{margin:12px auto -1px;width:42px;height:32px;border-radius:12px 12px 0 0;background:#834d67;border:3px solid #6b3a55;position:relative}
+.entry::after{content:"";position:absolute;right:5px;top:15px;width:4px;height:4px;background:#ffd889;border-radius:50%}
+dialog{width:min(520px,calc(100% - 20px));max-height:calc(100dvh - 24px);border:0;border-radius:23px;padding:17px;color:#29233d;background:#fffaf2;box-shadow:0 16px 55px #15112b55}
+dialog::backdrop{background:#201732a8}
+.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.close{font-size:24px;line-height:1;padding:6px 10px;border-radius:10px;background:#efe6f4;color:#4c3669}
+.scene{position:relative;isolation:isolate;height:clamp(145px,32vh,260px);overflow:hidden;border-radius:16px;background:linear-gradient(var(--room) 0 73%,#dca981 73%);display:grid;place-items:center}
+.scene::before{content:"";position:absolute;z-index:-1;bottom:6%;left:18%;width:64%;height:21%;background:#fff0c4;border-radius:50%}
+.picture{position:absolute;top:10%;right:12%;width:18%;height:31%;background:#ffefcf;border:5px solid #ae776e;border-radius:8px;display:grid;place-items:center;font-size:clamp(16px,4vw,29px)}
+.actor{display:flex;align-items:end;gap:8px;margin-top:12%;line-height:1}
+.actor .resident{font-size:clamp(52px,13vw,106px)}
+.prop{display:inline-block;font-size:clamp(32px,8vw,70px);animation:prop 1.8s ease-in-out infinite;transform-origin:bottom center}
+.resident{display:inline-block;line-height:1;animation:bob 2.6s ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes bob{50%{transform:translateY(-6%) rotate(5deg)}}
+@keyframes prop{50%{transform:translateY(-10%) rotate(-9deg)}}
+.prompt{margin-top:12px;color:#544961}
+.sentence{font-size:clamp(19px,4vw,25px);margin:5px 0 13px;line-height:1.2}
+#done{width:100%}
+@media(max-width:670px){.game{grid-template-columns:1fr}.panel{gap:8px}.instruction{min-height:0}.yard{min-height:0;padding-top:41px}.roof{height:32px}.window{height:clamp(73px,19vw,112px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="page">
+<header><h1>Кто живёт в домике?</h1><button class="full" id="full" type="button">Во весь экран</button></header>
+<section class="game" id="game">
+  <div class="panel">
+    <nav class="levels" aria-label="Уровни">
+      <button class="level" type="button" data-level="0">1<small>4 квартиры</small></button>
+      <button class="level" type="button" data-level="1">2<small>6 квартир</small></button>
+      <button class="level" type="button" data-level="2">3<small>8 квартир</small></button>
+    </nav>
+    <div aria-live="polite"><h2 class="phase" id="phase"></h2><p class="instruction" id="instruction"></p></div>
+    <progress id="progress" aria-label="Пройденные квартиры"></progress>
+    <p class="count" id="count"></p>
+    <div class="actions">
+      <button class="primary" id="advance" type="button"></button>
+      <button class="secondary" id="reset" type="button">Заново</button>
+    </div>
+  </div>
+  <div class="yard">
+    <div class="sky" aria-hidden="true"><span class="sun"></span><span class="moon"></span><span class="cloud">☁</span><span class="cloud second">☁</span><span class="stars">✧ · ✦ · ✧ · ✦</span></div>
+    <div class="house"><div class="roof"></div><div class="wall"><div class="windows" id="windows"></div><div class="entry" aria-hidden="true"></div></div></div>
+  </div>
+</section>
+</main>
+<dialog id="room" aria-labelledby="room-title">
+  <form method="dialog">
+    <div class="dialog-head"><h2 id="room-title"></h2><button type="submit" class="close" aria-label="Закрыть картинку">×</button></div>
+    <div class="scene" id="scene" role="img"><span class="picture" id="picture" aria-hidden="true"></span><div class="actor" aria-hidden="true"><span class="resident" id="hero"></span><span class="prop" id="prop"></span></div></div>
+    <p class="prompt" id="prompt"></p>
+    <p class="sentence"><strong id="sentence"></strong></p>
+    <button class="primary" id="done" type="submit">К домику</button>
+  </form>
+</dialog>
+<script>
+const residents = [
+  ['🐰','🥕','🌿','Зайчик грызёт морковку.','#c9e6c4'],
+  ['🐱','🎨','🖼️','Котёнок рисует картину.','#f4cfdb'],
+  ['🐻','🥁','🎵','Медвежонок играет на барабане.','#f5d79e'],
+  ['🦊','📖','🌙','Лисёнок читает сказку.','#e0cde9'],
+  ['🐶','⚽','⭐','Щенок играет в мяч.','#bfe2e8'],
+  ['🐹','🧩','🔷','Хомячок собирает пазл.','#eed7ad'],
+  ['🐼','🍵','🌼','Панда пьёт чай.','#d7e4b4'],
+  ['🐸','🪴','🌷','Лягушонок поливает цветок.','#d3d4f5'],
+  ['🐭','🧀','🟡','Мышонок ест сыр.','#f5d6b8'],
+  ['🐵','🎸','🎵','Обезьянка играет на гитаре.','#f2c9bc'],
+  ['🐯','🧱','🚩','Тигрёнок строит башню из кубиков.','#bbdce8'],
+  ['🐧','🧣','❄️','Пингвинёнок примеряет шарф.','#d9cdf1'],
+  ['🦉','🧶','🌙','Сова вяжет шарф.','#e8d7f0'],
+  ['🐨','🧼','💧','Коала моет лапки.','#c7e3d4'],
+  ['🦔','🍎','🍃','Ёжик несёт яблоко.','#efdab3'],
+  ['🐥','🎤','🎶','Цыплёнок поёт песню.','#f7d3d8'],
+  ['🐷','🧹','🌼','Поросёнок подметает пол.','#d5e9b9'],
+  ['🐿️','🌰','🍂','Белочка собирает орехи.','#f1c9a8']
+];
+const layouts = [[4,2],[6,3],[8,4]];
+const byId = id => document.getElementById(id);
+const game = byId('game'), windows = byId('windows'), room = byId('room');
+const levels = [...document.querySelectorAll('.level')];
+const advance = byId('advance');
+let level, night, apartments, visited, checked, openIndex;
 
+function start(index) {
+  level = index;
+  night = false;
+  visited = new Set();
+  checked = new Set();
+  openIndex = null;
+  const offset = [0,4,10][index];
+  const [size,columns] = layouts[index];
+  apartments = residents.slice(offset, offset + size);
+  windows.style.setProperty('--cols', columns);
+  windows.replaceChildren(...apartments.map(([emoji], i) => {
+    const button = document.createElement('button');
+    button.className = 'window';
+    button.type = 'button';
+    button.style.setProperty('--delay', (i * -.31) + 's');
+    button.innerHTML = '<span class="resident" aria-hidden="true">' + emoji +
+      '</span><span class="number" aria-hidden="true">' + (i + 1) +
+      '</span><span class="badge" aria-hidden="true" hidden>✓</span>';
+    button.addEventListener('click', () => openRoom(i));
+    return button;
+  }));
+  levels.forEach((button, i) => button.setAttribute('aria-pressed', i === index));
+  update();
+}
+
+function update() {
+  const current = night ? checked : visited;
+  const complete = current.size === apartments.length;
+  game.classList.toggle('night', night);
+  byId('phase').textContent = night ? (complete ? 'Все окна проверены!' : 'Ночь') : 'День';
+  byId('instruction').textContent = night
+    ? (complete ? 'Ты вспомнил, кто живёт в домике и чем занят каждый герой.' :
+      'Выбери окно. Скажи целым предложением, кто там живёт и что делает. Затем нажми на окно и проверь себя.')
+    : 'Открой каждое окно. Запомни, кто там живёт и что делает.';
+  byId('progress').max = apartments.length;
+  byId('progress').value = current.size;
+  byId('count').textContent = (night ? 'Проверено: ' : 'Открыто: ') + current.size + ' из ' + apartments.length;
+  advance.textContent = night ? (level === layouts.length - 1 ? 'Сыграть ещё раз' : 'Следующий уровень') : 'Наступает ночь';
+  advance.hidden = night && !complete;
+  advance.disabled = !complete;
+  [...windows.children].forEach((button, i) => {
+    button.setAttribute('aria-label', 'Квартира ' + (i + 1) +
+      (current.has(i) ? (night ? ', проверено' : ', уже открывали') : ''));
+    button.classList.toggle('lit', night && checked.has(i));
+    button.querySelector('.badge').hidden = !current.has(i);
+  });
+}
+
+function openRoom(index) {
+  openIndex = index;
+  const [hero, prop, picture, sentence, color] = apartments[index];
+  byId('room-title').textContent = 'Квартира ' + (index + 1);
+  byId('hero').textContent = hero;
+  byId('prop').textContent = prop;
+  byId('picture').textContent = picture;
+  byId('scene').style.setProperty('--room', color);
+  byId('scene').setAttribute('aria-label', sentence);
+  byId('prompt').textContent = night ? 'Сравни со своим предложением.' : 'Посмотри и скажи целым предложением.';
+  byId('sentence').textContent = sentence;
+  room.showModal();
+}
+
+room.addEventListener('close', () => {
+  if (openIndex === null) return;
+  (night ? checked : visited).add(openIndex);
+  openIndex = null;
+  update();
+});
+levels.forEach((button, i) => button.addEventListener('click', () => start(i)));
+byId('reset').addEventListener('click', () => start(level));
+advance.addEventListener('click', () => {
+  if (night) {
+    start((level + 1) % layouts.length);
+  } else {
+    night = true;
+    update();
+    windows.firstElementChild.focus();
+  }
+});
+const full = byId('full');
+full.hidden = !document.fullscreenEnabled;
+full.addEventListener('click', async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {
+    full.textContent = 'Полный экран недоступен';
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  full.textContent = document.fullscreenElement ? 'Выйти из полного экрана' : 'Во весь экран';
+});
+start(0);
+</script>
+</body>
+</html>
