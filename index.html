@@ -16,10 +16,12 @@ h2,p{margin:0}
 .field-tools button{min-height:44px;background:#fff8ef;color:#493567;border-radius:12px;padding:8px 14px;box-shadow:0 3px 10px #29233d24}
 .field-tools button:hover{background:#f1e7f6}
 .field-tools .full{width:44px;padding:0;font-size:25px;line-height:1}
-.rules{width:min(510px,calc(100% - 20px))}
-.rules ol{padding-left:24px;line-height:1.5}
+.rules{position:absolute;z-index:2;top:12px;left:12px;max-width:calc(100% - 76px);max-height:calc(100% - 24px);overflow:auto;background:#fff8efc7;color:#493567;border-radius:12px;box-shadow:0 3px 10px #29233d24;backdrop-filter:blur(5px)}
+.rules[open]{width:270px}
+.rules summary{padding:12px 14px;cursor:pointer;font-weight:800}
+.rules summary:focus-visible{outline:2px solid #792b43;outline-offset:-3px}
+.rules ol{margin:0;padding:0 14px 13px 33px;font-size:14px;line-height:1.4}
 .rules li+li{margin-top:8px}
-.rules .primary{width:100%}
 .game{display:grid;grid-template-columns:clamp(200px,18vw,245px) minmax(0,1fr);border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
 .panel{padding:clamp(15px,3vw,28px);display:flex;flex-direction:column;align-items:flex-start;gap:16px}
 .levels{display:flex;gap:7px;width:100%}
@@ -50,13 +52,11 @@ progress{width:100%;height:10px;accent-color:#6e4a9d}
 .windows.level-one{inset:21% 10% 6%;gap:4% 4%}
 .windows.level-one .window{width:min(100%,48cqh)}
 .windows.level-one .window:nth-child(n+3){transform:translateY(-5%)}
-.windows.level-two{inset:22% 12% 13.5%;gap:5% 2%;grid-template-columns:repeat(6,minmax(0,1fr))}
-.windows.level-two .window{width:min(100%,47.5cqh);grid-column:span 2}
-.windows.level-two .window:nth-child(4){grid-column:1 / span 2}
-.windows.level-two .window:nth-child(5){grid-column:5 / span 2}
-.windows.level-two .window:nth-child(n+4){transform:translateY(-5%)}
-.windows.level-three{inset:21% 12% 33%;gap:5% 2%}
-.windows.level-three .window{width:min(100%,47.5cqh)}
+.windows:is(.level-two,.level-three){inset:22% 12% 13.5%;gap:5% 2%;grid-template-columns:repeat(6,minmax(0,1fr))}
+.windows:is(.level-two,.level-three) .window{width:min(100%,47.5cqh);grid-column:span 2}
+.windows:is(.level-two,.level-three) .window:nth-child(4){grid-column:1 / span 2}
+.windows:is(.level-two,.level-three) .window:nth-child(5){grid-column:5 / span 2}
+.windows:is(.level-two,.level-three) .window:nth-child(n+4){transform:translateY(-5%)}
 .window:hover{box-shadow:0 0 0 2px #fff1c9}
 .window .scene{position:absolute;inset:2% 3%;height:auto;border-radius:0;visibility:hidden}
 .window.revealed .scene{visibility:visible}
@@ -149,7 +149,7 @@ dialog .painted-room .actor{position:absolute;bottom:12%;margin:0}
     <nav class="levels" aria-label="Уровни">
       <button class="level" type="button" data-level="0">1<small>4 квартиры</small></button>
       <button class="level" type="button" data-level="1">2<small>5 квартир</small></button>
-      <button class="level" type="button" data-level="2">3<small>6 квартир</small></button>
+      <button class="level" type="button" data-level="2">3<small>5 квартир</small></button>
     </nav>
     <div aria-live="polite"><h2 class="phase" id="phase"></h2><p class="instruction" id="instruction"></p></div>
     <progress id="progress" aria-label="Пройденные квартиры"></progress>
@@ -160,8 +160,15 @@ dialog .painted-room .actor{position:absolute;bottom:12%;margin:0}
     </div>
   </div>
   <div class="yard">
+    <details class="rules"><summary>Правила</summary>
+    <ol>
+      <li><strong>Днём</strong> открой каждое окно и запомни, кто там живёт и что делает. Нажми на сценку ещё раз, чтобы рассмотреть её крупнее.</li>
+      <li>Когда откроешь все окна, нажми <strong>«Наступает ночь»</strong>. Ставни снова появятся.</li>
+      <li><strong>Ночью</strong> выбери окно и скажи целое предложение. Например, «Королева играет на барабане». Потом открой окно и проверь себя.</li>
+      <li>Проверь все окна и переходи на следующий уровень.</li>
+    </ol>
+    </details>
     <div class="field-tools">
-      <button id="show-rules" type="button" aria-haspopup="dialog">Правила</button>
       <button class="full" id="full" type="button" aria-label="Во весь экран" title="Во весь экран">⛶</button>
     </div>
     <div class="sky" aria-hidden="true"><span class="sun"></span><span class="moon"></span><span class="cloud">☁</span><span class="cloud second">☁</span><span class="stars">✧ · ✦ · ✧ · ✦</span></div>
@@ -169,18 +176,6 @@ dialog .painted-room .actor{position:absolute;bottom:12%;margin:0}
   </div>
 </section>
 </main>
-<dialog class="rules" id="rules" aria-labelledby="rules-title">
-  <form method="dialog">
-    <div class="dialog-head"><h2 id="rules-title">Правила игры</h2><button type="submit" class="close" aria-label="Закрыть правила">×</button></div>
-    <ol>
-      <li><strong>Днём</strong> открой каждое окно и запомни, кто там живёт и что делает. Нажми на сценку ещё раз, чтобы рассмотреть её крупнее.</li>
-      <li>Когда откроешь все окна, нажми <strong>«Наступает ночь»</strong>. Ставни снова появятся.</li>
-      <li><strong>Ночью</strong> выбери окно и скажи целое предложение. Например, «Котёнок рисует картину». Потом открой окно и проверь себя.</li>
-      <li>Проверь все окна и переходи на следующий уровень.</li>
-    </ol>
-    <button class="primary" type="submit">К домику</button>
-  </form>
-</dialog>
 <dialog id="room" aria-labelledby="room-title">
   <form method="dialog">
     <div class="dialog-head"><h2 id="room-title"></h2><button type="submit" class="close" aria-label="Закрыть картинку">×</button></div>
@@ -205,10 +200,9 @@ const residents = [
   ['🐧','🧣','❄️','Пингвинёнок примеряет шарф.','#d9cdf1'],
   ['🦉','🧶','🌙','Сова вяжет шарф.','#e8d7f0'],
   ['🐨','🧼','💧','Коала моет лапки.','#c7e3d4'],
-  ['🦔','🍎','🍃','Ёжик несёт яблоко.','#efdab3'],
-  ['🐥','🎤','🎶','Цыплёнок поёт песню.','#f7d3d8']
+  ['🦔','🍎','🍃','Ёжик несёт яблоко.','#efdab3']
 ];
-const layouts = [[4,2],[5,3],[6,3]];
+const layouts = [[4,2],[5,3],[5,3]];
 const byId = id => document.getElementById(id);
 const game = byId('game'), windows = byId('windows'), room = byId('room');
 const levels = [...document.querySelectorAll('.level')];
@@ -317,7 +311,6 @@ advance.addEventListener('click', () => {
     windows.firstElementChild.focus();
   }
 });
-byId('show-rules').addEventListener('click', () => byId('rules').showModal());
 const full = byId('full');
 full.hidden = !document.fullscreenEnabled;
 full.addEventListener('click', async () => {
