@@ -10,12 +10,19 @@
 body{margin:0;color:#29233d;background:#f8ecdb;font-family:"Trebuchet MS",system-ui,sans-serif}
 button{font:inherit;font-weight:700;cursor:pointer;border:0}
 button:focus-visible{outline:3px solid #ff9f34;outline-offset:4px}
-.page{max-width:1160px;margin:auto;padding:18px clamp(10px,3vw,28px)}
+.page{max-width:1800px;margin:auto;padding:12px clamp(8px,1.5vw,22px)}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
 h1,h2,p{margin:0}
 h1{font-size:clamp(24px,5vw,43px);line-height:1.05;letter-spacing:-.04em}
-.full{background:#fff8ef;color:#514267;border-radius:12px;padding:9px 12px;flex-shrink:0}
-.game{display:grid;grid-template-columns:minmax(230px,285px) minmax(0,1fr);border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
+.field-tools{position:absolute;z-index:1;top:12px;right:12px;display:flex;align-items:center;gap:8px}
+.field-tools button{min-height:44px;background:#fff8ef;color:#493567;border-radius:12px;padding:8px 14px;box-shadow:0 3px 10px #29233d24}
+.field-tools button:hover{background:#f1e7f6}
+.field-tools .full{width:44px;padding:0;font-size:25px;line-height:1}
+.rules{width:min(510px,calc(100% - 20px))}
+.rules ol{padding-left:24px;line-height:1.5}
+.rules li+li{margin-top:8px}
+.rules .primary{width:100%}
+.game{display:grid;grid-template-columns:clamp(200px,18vw,245px) minmax(0,1fr);border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
 .panel{padding:clamp(15px,3vw,28px);display:flex;flex-direction:column;align-items:flex-start;gap:16px}
 .levels{display:flex;gap:7px;width:100%}
 .level{flex:1;background:#f0e7f5;color:#493567;border-radius:12px;padding:7px 3px;font-size:16px}
@@ -29,29 +36,29 @@ progress{width:100%;height:10px;accent-color:#6e4a9d}
 .primary,.secondary{padding:10px 13px;border-radius:12px;background:#573d82;color:white}
 .primary:disabled{background:#e3d9e9;color:#554766;cursor:default}
 .secondary{background:#f0e7f5;color:#493567}
-.yard{position:relative;isolation:isolate;display:grid;place-items:end center;overflow:hidden;padding:45px clamp(10px,4vw,44px) 24px;min-height:480px;background:linear-gradient(#a9ddeb,#def2e6 80%,#aad3a0 80%,#89bb87);transition:background .4s}
+.yard{position:relative;isolation:isolate;display:grid;place-items:end center;overflow:hidden;padding:69px clamp(10px,3vw,38px) 24px;min-height:max(525px,calc(100dvh - 87px));align-items:center;background:linear-gradient(#a9ddeb,#def2e6 80%,#aad3a0 80%,#89bb87);transition:background .4s}
 .night .yard{background:linear-gradient(#23234c,#504b80 80%,#384d57 80%,#293a45)}
 .sky{position:absolute;inset:0;z-index:-1;pointer-events:none}
-.sun,.moon{position:absolute;top:18px;right:7%;border-radius:50%;width:49px;height:49px;background:#ffe093;box-shadow:0 0 26px #ffe093}
+.sun,.moon{position:absolute;top:65px;right:5%;border-radius:50%;width:49px;height:49px;background:#ffe093;box-shadow:0 0 26px #ffe093}
 .moon{display:none;background:#fff0b7;box-shadow:0 0 22px #fff0b777}
 .cloud{position:absolute;top:17%;left:6%;color:#ffffffad;font-size:clamp(30px,7vw,74px);line-height:1}
 .cloud.second{left:auto;right:5%;top:34%;font-size:36px}
 .stars{display:none;position:absolute;inset:15px;color:#fff2b9;font-size:20px;letter-spacing:clamp(12px,5vw,54px);text-align:center}
 .night .sun,.night .cloud{display:none}
 .night .moon,.night .stars{display:block}
-.house{width:min(100%,600px);filter:drop-shadow(0 10px 0 #433b432a)}
+.house{width:min(100%,1140px);filter:drop-shadow(0 10px 0 #433b432a)}
 .roof{height:50px;margin:0 -8px;background:linear-gradient(160deg,#aa5476,#734569);clip-path:polygon(9% 0,90% 0,100% 100%,0 100%);position:relative}
 .roof::after{content:"";position:absolute;inset:10px 0 0;background:repeating-linear-gradient(0deg,transparent 0 9px,#48254428 9px 11px)}
 .wall{padding:clamp(8px,2vw,19px);border:3px solid #9d6057;border-top:6px solid #734569;border-radius:0 0 12px 12px;background:repeating-linear-gradient(0deg,#f0b998 0 23px,#f8caae 23px 25px)}
 .night .wall{background:repeating-linear-gradient(0deg,#9b7080 0 23px,#aa8290 23px 25px);border-color:#66445e}
 .windows{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:clamp(6px,1.5vw,14px)}
-.window{position:relative;display:grid;place-items:center;min-width:0;height:clamp(78px,15vw,126px);padding:0;border:5px solid #8f595c;border-bottom-width:8px;border-radius:18px 18px 8px 8px;overflow:hidden;background:linear-gradient(90deg,#bf8184 0 13%,transparent 13% 87%,#bf8184 87%),linear-gradient(#ffeab8 0 77%,#db9b7c 77%);box-shadow:inset 0 0 0 2px #fff3d5}
+.window{position:relative;display:grid;place-items:center;min-width:0;height:clamp(125px,calc((100dvh - 325px) / 2),290px);padding:0;border:5px solid #8f595c;border-bottom-width:8px;border-radius:18px 18px 8px 8px;overflow:hidden;background:linear-gradient(90deg,#bf8184 0 13%,transparent 13% 87%,#bf8184 87%),linear-gradient(#ffeab8 0 77%,#db9b7c 77%);box-shadow:inset 0 0 0 2px #fff3d5}
 .window:hover{border-color:#5f3b70}
 .window .scene{position:absolute;inset:0;height:auto;border-radius:0;visibility:hidden}
 .window.revealed .scene{visibility:visible}
 .window .scene .actor{position:absolute;inset:auto 4% 13%;height:68%;margin:0;justify-content:center;align-items:end;gap:3%;container-type:inline-size}
-.window .scene .resident{font-size:clamp(23px,47cqw,64px)}
-.window .scene .prop{font-size:clamp(13px,30cqw,44px)}
+.window .scene .resident{font-size:clamp(23px,min(47cqw,15dvh),110px)}
+.window .scene .prop{font-size:clamp(13px,min(30cqw,10dvh),78px)}
 .window .picture{border-width:2px;border-radius:3px;font-size:clamp(8px,1.5vw,15px);line-height:1}
 .shutters{position:absolute;inset:0;display:flex;pointer-events:none}
 .shutters::before,.shutters::after{content:"";width:50%;background:repeating-linear-gradient(0deg,#b97379 0 7px,#d58c8a 7px 10px);border:2px solid #874c64;box-shadow:inset 0 0 0 2px #e3a19a;transition:transform .26s ease}
@@ -85,13 +92,13 @@ dialog .prop{font-size:clamp(40px,min(14vw,21dvh),155px)}
 .prompt{margin-top:12px;color:#544961}
 .sentence{font-size:clamp(19px,4vw,25px);margin:5px 0 13px;line-height:1.2}
 #done{width:100%}
-@media(max-width:670px){.game{grid-template-columns:1fr}.panel{gap:8px}.instruction{min-height:0}.yard{min-height:0;padding-top:41px}.roof{height:32px}.window{height:clamp(73px,19vw,112px)}}
+@media(max-width:670px){.game{grid-template-columns:1fr}.panel{gap:8px}.instruction{min-height:0}.yard{min-height:0;padding-top:67px}.roof{height:32px}.window{height:clamp(92px,24vw,155px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <main class="page">
-<header><h1>Кто живёт в домике?</h1><button class="full" id="full" type="button">Во весь экран</button></header>
+<header><h1>Кто живёт в домике?</h1></header>
 <section class="game" id="game">
   <div class="panel">
     <nav class="levels" aria-label="Уровни">
@@ -108,11 +115,27 @@ dialog .prop{font-size:clamp(40px,min(14vw,21dvh),155px)}
     </div>
   </div>
   <div class="yard">
+    <div class="field-tools">
+      <button id="show-rules" type="button" aria-haspopup="dialog">Правила</button>
+      <button class="full" id="full" type="button" aria-label="Во весь экран" title="Во весь экран">⛶</button>
+    </div>
     <div class="sky" aria-hidden="true"><span class="sun"></span><span class="moon"></span><span class="cloud">☁</span><span class="cloud second">☁</span><span class="stars">✧ · ✦ · ✧ · ✦</span></div>
     <div class="house"><div class="roof"></div><div class="wall"><div class="windows" id="windows"></div><div class="entry" aria-hidden="true"></div></div></div>
   </div>
 </section>
 </main>
+<dialog class="rules" id="rules" aria-labelledby="rules-title">
+  <form method="dialog">
+    <div class="dialog-head"><h2 id="rules-title">Правила игры</h2><button type="submit" class="close" aria-label="Закрыть правила">×</button></div>
+    <ol>
+      <li><strong>Днём</strong> открой каждое окно и запомни, кто там живёт и что делает. Нажми на сценку ещё раз, чтобы рассмотреть её крупнее.</li>
+      <li>Когда откроешь все окна, нажми <strong>«Наступает ночь»</strong>. Ставни закроются.</li>
+      <li><strong>Ночью</strong> выбери окно и скажи целое предложение. Например, «Котёнок рисует картину». Потом открой окно и проверь себя.</li>
+      <li>Проверь все окна и переходи на следующий уровень.</li>
+    </ol>
+    <button class="primary" type="submit">К домику</button>
+  </form>
+</dialog>
 <dialog id="room" aria-labelledby="room-title">
   <form method="dialog">
     <div class="dialog-head"><h2 id="room-title"></h2><button type="submit" class="close" aria-label="Закрыть картинку">×</button></div>
@@ -239,6 +262,7 @@ advance.addEventListener('click', () => {
     windows.firstElementChild.focus();
   }
 });
+byId('show-rules').addEventListener('click', () => byId('rules').showModal());
 const full = byId('full');
 full.hidden = !document.fullscreenEnabled;
 full.addEventListener('click', async () => {
@@ -246,11 +270,14 @@ full.addEventListener('click', async () => {
     if (document.fullscreenElement) await document.exitFullscreen();
     else await document.documentElement.requestFullscreen();
   } catch {
-    full.textContent = 'Полный экран недоступен';
+    full.title = 'Полный экран недоступен';
   }
 });
 document.addEventListener('fullscreenchange', () => {
-  full.textContent = document.fullscreenElement ? 'Выйти из полного экрана' : 'Во весь экран';
+  const label = document.fullscreenElement ? 'Выйти из полного экрана' : 'Во весь экран';
+  full.textContent = document.fullscreenElement ? '×' : '⛶';
+  full.setAttribute('aria-label', label);
+  full.title = label;
 });
 start(0);
 </script>
