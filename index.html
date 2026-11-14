@@ -16,23 +16,20 @@ h2,p{margin:0}
 .field-tools button{min-height:44px;background:#fff8ef;color:#493567;border-radius:12px;padding:8px 14px;box-shadow:0 3px 10px #29233d24}
 .field-tools button:hover{background:#f1e7f6}
 .field-tools .full{width:44px;padding:0;font-size:25px;line-height:1}
-.rules{position:absolute;z-index:2;top:12px;left:12px;max-width:calc(100% - 76px);max-height:calc(100% - 24px);overflow:auto;background:#fff8efc7;color:#493567;border-radius:12px;box-shadow:0 3px 10px #29233d24;backdrop-filter:blur(5px)}
-.rules[open]{width:270px}
+.rules{position:relative;background:#fff8efc7;color:#493567;border-radius:12px;box-shadow:0 3px 10px #29233d24;backdrop-filter:blur(5px)}
+.rules[open] ol{position:absolute;top:100%;left:0;width:min(270px,calc(100vw - 42px));background:#fff8efed;border-radius:12px;box-shadow:0 3px 10px #29233d24;padding-top:12px}
 .rules summary{padding:12px 14px;cursor:pointer;font-weight:800}
 .rules summary:focus-visible{outline:2px solid #792b43;outline-offset:-3px}
 .rules ol{margin:0;padding:0 14px 13px 33px;font-size:14px;line-height:1.4}
 .rules li+li{margin-top:8px}
-.game{display:grid;grid-template-columns:clamp(200px,18vw,245px) minmax(0,1fr);border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
-.panel{padding:clamp(15px,3vw,28px);display:flex;flex-direction:column;align-items:flex-start;gap:16px}
-.levels{display:flex;gap:7px;width:100%}
-.level{flex:1;background:#f0e7f5;color:#493567;border-radius:12px;padding:7px 3px;font-size:16px}
-.level small{display:block;font-size:11px;font-weight:600}
-.level[aria-pressed=true]{background:#573d82;color:white}
-.phase{font-size:23px}
-.instruction{line-height:1.44;color:#544961;min-height:4.4em}
-progress{width:100%;height:10px;accent-color:#6e4a9d}
-.count{font-size:14px;color:#554766}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
+.game{border-radius:26px;overflow:hidden;background:#fffaf2;box-shadow:0 12px 42px #704c3020}
+.play-controls{position:absolute;z-index:2;top:12px;left:12px;right:68px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:6px;pointer-events:none}
+.play-controls > *{pointer-events:auto}
+.play-controls button{min-height:44px;padding:8px 12px;border-radius:12px;color:#493567;background:#fff8efc7;backdrop-filter:blur(5px);box-shadow:0 3px 10px #29233d24}
+.play-controls button:disabled{opacity:.65;cursor:default}
+.levels{display:flex;gap:6px}
+.play-controls .level{min-width:36px;padding:8px}
+.play-controls .level[aria-pressed=true]{background:#573d82e6;color:white}
 .primary,.secondary{padding:10px 13px;border-radius:12px;background:#573d82;color:white}
 .primary:disabled{background:#e3d9e9;color:#554766;cursor:default}
 .secondary{background:#f0e7f5;color:#493567}
@@ -89,7 +86,7 @@ dialog .prop{font-size:clamp(40px,min(14vw,21dvh),155px)}
 .prompt{margin-top:12px;color:#544961}
 .sentence{font-size:clamp(19px,4vw,25px);margin:5px 0 13px;line-height:1.2}
 #done{width:100%}
-@media(max-width:670px){.game{grid-template-columns:1fr}.panel{gap:8px}.instruction{min-height:0}.yard{min-height:0;padding:67px 7px 17px}.house{width:100%;min-height:214px}.window .scene .resident{font-size:clamp(15px,40cqw,44px)}.window .scene .prop{font-size:clamp(10px,26cqw,30px)}.zoom,.number{font-size:10px}}
+@media(max-width:670px){.yard{min-height:0;padding:67px 7px 17px}.house{width:100%;min-height:214px}.window .scene .resident{font-size:clamp(15px,40cqw,44px)}.window .scene .prop{font-size:clamp(10px,26cqw,30px)}.zoom,.number{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 .yard{background-image:var(--courtyard);background-size:100% 100%;background-position:center bottom}
@@ -145,21 +142,8 @@ dialog .painted-room .actor{position:absolute;bottom:12%;margin:0}
 <body>
 <main class="page">
 <section class="game" id="game">
-  <div class="panel">
-    <nav class="levels" aria-label="Уровни">
-      <button class="level" type="button" data-level="0">1<small>4 квартиры</small></button>
-      <button class="level" type="button" data-level="1">2<small>5 квартир</small></button>
-      <button class="level" type="button" data-level="2">3<small>5 квартир</small></button>
-    </nav>
-    <div aria-live="polite"><h2 class="phase" id="phase"></h2><p class="instruction" id="instruction"></p></div>
-    <progress id="progress" aria-label="Пройденные квартиры"></progress>
-    <p class="count" id="count"></p>
-    <div class="actions">
-      <button class="primary" id="advance" type="button"></button>
-      <button class="secondary" id="reset" type="button">Заново</button>
-    </div>
-  </div>
   <div class="yard">
+    <div class="play-controls">
     <details class="rules"><summary>Правила</summary>
     <ol>
       <li><strong>Днём</strong> открой каждое окно и запомни, кто там живёт и что делает. Нажми на сценку ещё раз, чтобы рассмотреть её крупнее.</li>
@@ -168,6 +152,14 @@ dialog .painted-room .actor{position:absolute;bottom:12%;margin:0}
       <li>Проверь все окна и переходи на следующий уровень.</li>
     </ol>
     </details>
+    <nav class="levels" aria-label="Уровни">
+      <button class="level" type="button" data-level="0">1</button>
+      <button class="level" type="button" data-level="1">2</button>
+      <button class="level" type="button" data-level="2">3</button>
+    </nav>
+    <button id="advance" type="button">Наступает ночь</button>
+    <button id="reset" type="button">Заново</button>
+    </div>
     <div class="field-tools">
       <button class="full" id="full" type="button" aria-label="Во весь экран" title="Во весь экран">⛶</button>
     </div>
@@ -260,14 +252,6 @@ function update() {
   const current = night ? checked : visited;
   const complete = current.size === apartments.length;
   game.classList.toggle('night', night);
-  byId('phase').textContent = night ? (complete ? 'Все окна проверены!' : 'Ночь') : 'День';
-  byId('instruction').textContent = night
-    ? (complete ? 'Можно ещё раз рассмотреть любую картинку или сыграть дальше.' :
-      'Выбери окно. Скажи целым предложением, кто там живёт и что делает. Затем открой окно и проверь себя. Нажми на картинку ещё раз, чтобы увеличить её.')
-    : 'Открывай окна и запоминай, кто где живёт и что делает. Нажми на картинку ещё раз, чтобы увеличить её.';
-  byId('progress').max = apartments.length;
-  byId('progress').value = current.size;
-  byId('count').textContent = (night ? 'Проверено: ' : 'Открыто: ') + current.size + ' из ' + apartments.length;
   advance.textContent = night ? (level === layouts.length - 1 ? 'Сыграть ещё раз' : 'Следующий уровень') : 'Наступает ночь';
   advance.hidden = night && !complete;
   advance.disabled = !complete;
